@@ -10,7 +10,7 @@
 [![discord.py](https://img.shields.io/badge/discord.py-2.4+-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discordpy.readthedocs.io/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white)](./Dockerfile)
 
-[🏠 **내 서버에 봇 초대하기**](https://discord.com/oauth2/authorize?client_id=1564117482393051206&permissions=536879104&integration_type=0&scope=bot+applications.commands) · [👤 **내 계정에 앱 추가하기 (모든 서버·DM용)**](https://discord.com/oauth2/authorize?client_id=1564117482393051206&integration_type=1&scope=applications.commands)
+[🌐 **공식 소개 & 콘 보관함 웹페이지**](https://eruminyu.github.io/DiCoCon/) · [🏠 **내 서버에 봇 초대하기**](https://discord.com/oauth2/authorize?client_id=1564117482393051206&permissions=536879104&integration_type=0&scope=bot+applications.commands) · [👤 **내 계정에 앱 추가하기 (모든 서버·DM용)**](https://discord.com/oauth2/authorize?client_id=1564117482393051206&integration_type=1&scope=applications.commands)
 
 </div>
 
