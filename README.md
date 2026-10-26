@@ -30,8 +30,8 @@ PC 디스코드에서 기본 이모지(48px)는 너무 작아서 잘 보이지 �
 | 🔍 **기본 이모지 자동 확대** | 이모지 선택 창(😀)에서 마우스로 클릭해 보내거나 `:이모지:` 1개를 단독 입력하면, 작은 원본을 지우고 **내 프사 + 내 닉네임 그대로 128px 고화질 이미지**로 자동 전환합니다. |
 | 💬 **`:콘이름:` 빠른 호출** | 서버 스티커 슬롯 제한 없이 등록된 커스텀 콘을 `:바부:` (또는 단축 입력 `;바부`) 형태로 입력해 0.1초 만에 전송합니다. |
 | 🌐 **모든 서버 & 개인 DM `/콘`** | 내 계정에 앱을 추가(User Install)하면, 봇이 없는 다른 서버나 친구와의 1:1 DM에서도 **초성 검색(`ㅂㅂ` ➔ `바부`) 자동완성**으로 콘과 `/이모지확대`를 사용할 수 있습니다. |
-| ⚡ **우클릭 한 번으로 콘 저장** | 채팅방에 올라온 이미지나 이모지를 **`우클릭 ➔ 앱 ➔ 콘으로 저장`**만 누르면 즉시 내 콘 목록에 추가됩니다. (무거운 이미지 파일 대신 경량 URL만 기록하여 서버 용량을 차지하지 않습니다.) |
-| 🗂️ **브라우저 콘 보관함 웹 제공** | 프론트 웹페이지(`/docs`)에서 내 브라우저 로컬 저장소에 콘을 모아두고 클릭 한 번으로 복사하거나 웹훅으로 즉시 전송할 수 있습니다. |
+| ⚡ **우클릭 한 번으로 콘 저장** | 채팅방에 올라온 이미지나 이모지를 **`우클릭 ➔ 앱 ➔ 콘으로 저장`**만 누르면 즉시 내 콘 목록에 추가됩니다. |
+| 🗂️ **브라우저 콘 보관함 웹 제공** | [공식 웹페이지](https://eruminyu.github.io/DiCoCon/)에서 내 브라우저에 콘을 모아두고 클릭 한 번으로 복사하거나 웹훅으로 즉시 전송할 수 있습니다. |
 
 ---
 
@@ -48,32 +48,28 @@ PC 디스코드에서 기본 이모지(48px)는 너무 작아서 잘 보이지 �
 
 ---
 
-## 🚀 배포 및 실행 가이드
+## 🛠️ 직접 봇 실행하기 (Self-Hosting)
 
-### 1️⃣ 프론트 웹페이지 배포 (Vercel / GitHub Pages)
-* **Vercel**: 이 저장소를 Vercel에 Import 후 바로 **Deploy** 클릭 (`vercel.json`이 포함되어 있어 `/docs/index.html`이 루트 경로로 자동 연결됩니다.)
-* **GitHub Pages**: 저장소 `Settings` ➔ `Pages` ➔ Branch를 `main`, 폴더를 `/docs`로 지정 후 **Save** 클릭
+공식 초대 링크 대신 본인의 독립된 봇 토큰으로 직접 구동하고 싶을 때의 실행 방법입니다.
 
-### 2️⃣ 온라인 무료 클라우드에 봇 24시간 올리기 (Render / Koyeb)
-`bot.py` 내부에 클라우드 헬스체크 웹 서버(`PORT` 환경변수 자동 감지)와 `Dockerfile`이 내장되어 있습니다.
-1. [Render](https://render.com) 또는 [Koyeb](https://www.koyeb.com)에서 **[New Web Service]** 클릭 후 이 GitHub 저장소 연결
-2. Runtime을 **`Docker`**, 플랜을 **`Free`**로 선택
-3. 환경 변수(**Environment Variables**)에 `DISCORD_TOKEN` = `내_디스코드_봇_토큰` 추가 후 배포!
+### 1. 윈도우 PC에서 실행하기
+* **일반 실행 (최초 1회 토큰 설정 마법사 포함)**: `실행.bat` 더블클릭
+* **창 없이 백그라운드 조용히 실행**: `백그라운드_실행.vbs` 더블클릭 (`Win + R` ➔ `shell:startup` 시작프로그램 폴더에 바로가기를 넣으면 부팅 시 자동 실행)
+* **백그라운드 종료**: `백그라운드_종료.bat` 더블클릭
 
-### 3️⃣ 리눅스 서버 (Oracle Cloud 등)에 24시간 올리기
+### 2. 리눅스 / Docker 서버에서 실행하기
 ```bash
 git clone https://github.com/eruminyu/DiCoCon.git
 cd DiCoCon
 cp .env.example .env
 nano .env   # DISCORD_TOKEN 입력 후 저장
-chmod +x install_linux.sh && ./install_linux.sh
-```
-* `install_linux.sh`가 파이썬 가상환경 생성부터 `systemd` 상시 자동 재시작 서비스(`discord-conbot`) 등록까지 자동으로 완료합니다.
 
-### 4️⃣ 윈도우 PC에서 로컬로 바로 실행하기
-* **일반 실행 (최초 1회 토큰 설정 마법사 포함)**: `실행.bat` 더블클릭
-* **창 없이 백그라운드 조용히 실행**: `백그라운드_실행.vbs` 더블클릭 (`Win + R` ➔ `shell:startup` 시작프로그램 폴더에 바로가기를 넣으면 부팅 시 자동 실행)
-* **백그라운드 종료**: `백그라운드_종료.bat` 더블클릭
+# 일반 리눅스 (systemd 백그라운드 서비스 자동 등록)
+chmod +x install_linux.sh && ./install_linux.sh
+
+# 또는 Docker 사용 시
+docker compose up -d --build
+```
 
 ---
 
@@ -81,18 +77,13 @@ chmod +x install_linux.sh && ./install_linux.sh
 
 ```text
 DiCoCon/
-├── bot.py                 # 디코콘 메인 봇 코드 (웹훅 자동 변환 + 유저 앱 슬래시 명령어 + 헬스체크)
+├── bot.py                 # 디코콘 메인 봇 코드
 ├── cons_db.json           # 경량 URL 기반 콘 데이터베이스
-├── cons/                  # 기본 제공 로컬 콘 이미지 폴더 (바부.png 등)
-├── docs/                  # 프론트엔드 소개 & 튜토리얼 웹페이지 (Vercel / GitHub Pages용)
-│   ├── index.html
-│   ├── mascot.png         # 디코콘 마스코트 일러스트
-│   ├── icon.png           # 웹 아이콘 & 파비콘
-│   └── sample_con.png     # 채팅 미리보기 샘플 이미지
-├── Dockerfile             # 클라우드 및 컨테이너 배포용 Docker 설정
+├── cons/                  # 기본 제공 로컬 콘 이미지 폴더
+├── docs/                  # 공식 소개 & 브라우저 콘 보관함 웹페이지
+├── Dockerfile             # Docker 컨테이너 빌드 설정
 ├── docker-compose.yml     # Docker Compose 설정
 ├── install_linux.sh       # 리눅스 systemd 서비스 원클릭 설치 스크립트
-├── vercel.json            # Vercel 정적 페이지 라우팅 설정
 ├── 실행.bat               # 윈도우 일반 실행 스크립트
 ├── 백그라운드_실행.vbs     # 윈도우 무창 백그라운드 실행 스크립트
 └── 백그라운드_종료.bat     # 윈도우 백그라운드 프로세스 종료 스크립트
