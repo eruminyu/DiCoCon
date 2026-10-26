@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/docs/index.html" },
+    { "source": "/:file(mascot\\.png|icon\\.png|sample_con\\.png)", "destination": "/docs/:file" }
+  ]
+}

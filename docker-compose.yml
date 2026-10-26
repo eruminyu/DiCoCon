@@ -1,0 +1,11 @@
+services:
+  discord-conbot:
+    build: .
+    container_name: discord-conbot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./cons:/app/cons
+      - ./cache:/app/cache
+      - ./cons_db.json:/app/cons_db.json

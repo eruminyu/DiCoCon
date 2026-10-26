@@ -1,0 +1,17 @@
+# 봇 토큰이 들어있는 환경변수 파일 (절대 GitHub에 업로드 금지!)
+.env
+
+# 파이썬 가상환경 및 캐시
+.venv/
+.venv_linux/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 리사이징 이미지 캐시 및 로컬 백업 폴더
+cache/
+docs/backup/
+
+# OS 생성 파일
+.DS_Store
+Thumbs.db

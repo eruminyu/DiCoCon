@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>디코콘 (DiCoCon) — 디스코드 큰 이모지 & 무제한 커스텀 콘</title>
+  <link rel="icon" type="image/png" href="./icon.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            discord: {
+              bg: '#313338',
+              sidebar: '#2b2d31',
+              dark: '#1e1f22',
+              blurple: '#5865F2',
+              blurpleHover: '#4752C4',
+              green: '#23a55a',
+              text: '#dbdee1',
+              muted: '#949ba4'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background-color: #1e1f22;
+      color: #dbdee1;
+    }
+    .glass-card {
+      background: rgba(43, 45, 49, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .chat-hover:hover {
+      background-color: #2e3035;
+    }
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    .mascot-float {
+      animation: floatSlow 3.5s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-discord-blurple selection:text-white">
+
+  <!-- 상단 네비게이션 -->
+  <header class="sticky top-0 z-50 bg-discord-dark/90 backdrop-blur border-b border-white/10">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3 group">
+        <img src="./icon.png" alt="DiCoCon" class="w-10 h-10 rounded-xl object-cover border border-indigo-400/30 shadow-lg shadow-discord-blurple/20 group-hover:scale-105 transition" />
+        <div class="flex items-baseline gap-2">
+          <span class="font-extrabold text-lg text-white tracking-tight">디코콘</span>
+          <span class="text-xs font-semibold text-indigo-300">DiCoCon</span>
+        </div>
+      </a>
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-discord-muted">
+        <a href="#features" class="hover:text-white transition">핵심 기능</a>
+        <a href="#usage" class="hover:text-white transition">사용법</a>
+        <a href="#local-deck" class="hover:text-white transition">브라우저 콘 보관함</a>
+        <a href="#tutorial" class="hover:text-white transition">설치 가이드</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="#invite-section" class="px-4 py-2 rounded-lg bg-discord-blurple hover:bg-discord-blurpleHover text-white text-sm font-semibold transition shadow">
+          디코콘 추가하기
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 히어로 섹션 & 원클릭 초대 -->
+  <section id="invite-section" class="relative overflow-hidden py-14 md:py-20 border-b border-white/5">
+    <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-400/30 text-indigo-300 text-xs font-semibold mb-4">
+          ✨ 네모난 박스 테두리 없이 · 내 프로필 그대로 깔끔하게
+        </div>
+        <h1 class="text-3xl md:text-5xl font-extrabold text-white leading-tight mb-5">
+          작은 이모지는 크게,<br />
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-400">
+            나만의 콘은 무제한으로!
+          </span>
+        </h1>
+        <p class="text-discord-muted text-base md:text-lg leading-relaxed mb-8">
+          PC에서 너무 작게 보이는 디스코드 기본 이모지와 부족한 스티커 슬롯을 <strong>디코콘(DiCoCon)</strong>으로 해결하세요.
+          채팅창에 이모지나 <code class="px-1.5 py-0.5 rounded bg-black/40 text-indigo-300">:콘이름:</code>을 입력하면
+          <strong>내 닉네임과 프로필 사진 그대로</strong> 큼직한 이미지를 전송합니다.
+        </p>
+
+        <!-- 초대 버튼 영역 -->
+        <div class="space-y-3">
+          <div class="flex flex-wrap gap-3">
+            <a id="btn-guild-invite" href="#" target="_blank"
+               class="flex-1 min-w-[220px] flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-discord-blurple hover:bg-discord-blurpleHover text-white font-bold text-sm transition shadow-lg shadow-discord-blurple/25">
+              <span>🏠 내 서버에 봇 초대하기</span>
+              <span class="text-xs font-normal opacity-80">(서버 공용)</span>
+            </a>
+            <a id="btn-user-install" href="#" target="_blank"
+               class="flex-1 min-w-[220px] flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-discord-sidebar hover:bg-white/10 text-white font-bold text-sm border border-white/15 transition">
+              <span>👤 내 계정에 앱 추가하기</span>
+              <span class="text-xs font-normal text-discord-muted">(모든 서버·DM용)</span>
+            </a>
+          </div>
+
+          <!-- Client ID 설정 토글 -->
+          <div class="pt-2">
+            <button onclick="toggleClientIdBox()" class="text-xs text-discord-muted hover:text-white underline underline-offset-4">
+              ⚙️ 직접 호스팅 중인 봇의 Application ID로 초대 링크 연결하기
+            </button>
+            <div id="client-id-box" class="hidden mt-3 p-4 rounded-xl bg-discord-sidebar border border-white/10">
+              <label class="block text-xs text-discord-muted mb-1.5">
+                Discord Developer Portal ➔ General Information의 <strong>Application ID</strong> 입력:
+              </label>
+              <div class="flex gap-2">
+                <input id="input-client-id" type="text" placeholder="예: 123456789012345678"
+                       oninput="updateInviteLinks(this.value)"
+                       class="flex-1 px-3 py-2 rounded-lg bg-discord-dark border border-white/15 text-white text-sm focus:outline-none focus:border-discord-blurple" />
+                <button onclick="saveClientId()" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition">
+                  저장
+                </button>
+              </div>
+              <p class="text-[11px] text-discord-muted mt-2">
+                * 입력하면 위의 두 초대 버튼에 즉시 반영되며, 필요한 권한이 자동으로 설정됩니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측 마스코트 & 실제 디스코드 채팅방 미리보기 -->
+      <div class="relative">
+        <!-- 떠 있는 마스코트 뱃지 -->
+        <div class="flex items-center gap-4 mb-4 p-3.5 rounded-2xl glass-card border border-indigo-400/20">
+          <img src="./mascot.png" alt="디코콘 마스코트 코코" class="w-20 h-20 rounded-2xl object-cover mascot-float shrink-0 shadow-lg" />
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold">마스코트 코코(CoCo)</span>
+              <a href="./mascot.png" download="DiCoCon_Profile.png" class="text-[11px] text-discord-muted hover:text-white underline">
+                📥 봇 프로필용 이미지 받기
+              </a>
+            </div>
+            <p class="text-sm text-white font-semibold mt-1">
+              "작아서 안 보이던 이모지, 이제 큼직하게 보내요!"
+            </p>
+            <p class="text-xs text-discord-muted mt-0.5">
+              서버에서는 채팅만으로 자동 변환되고, DM에서는 <code>/콘</code>으로 어디서나 쓸 수 있어요.
+            </p>
+          </div>
+        </div>
+
+        <!-- 채팅방 시뮬레이션 카드 -->
+        <div class="glass-card rounded-2xl p-5 shadow-2xl">
+          <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-discord-muted font-bold text-lg">#</span>
+              <span class="text-white font-bold text-sm">일반-채팅방</span>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-400 font-medium">
+              채팅창 표시 비교
+            </span>
+          </div>
+
+          <div class="space-y-4 bg-discord-bg rounded-xl p-4">
+            <!-- 일반 대화 흐름 예시 -->
+            <div class="flex items-start gap-3 chat-hover p-1.5 rounded-lg transition">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                민수
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-amber-300 text-sm">민수</span>
+                  <span class="text-[11px] text-discord-muted">오후 8:14</span>
+                </div>
+                <p class="text-sm text-discord-text mt-0.5">
+                  오늘 레이드 몇 시에 모이기로 했지?
+                </p>
+              </div>
+            </div>
+
+            <!-- 디코콘 변환 결과: 내 프사와 내 닉네임 그대로, 설명 문구나 이중 박스 없이 순수 콘만 딱 출력! -->
+            <div class="flex items-start gap-3 chat-hover p-1.5 rounded-lg transition">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                내프사
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="font-semibold text-sky-300 text-sm">내닉네임</span>
+                  <span class="px-1 py-0.2 rounded bg-discord-blurple text-[10px] font-bold text-white">앱</span>
+                  <span class="text-[11px] text-discord-muted ml-1">오후 8:15</span>
+                </div>
+                <img src="./sample_con.png" alt="128px 콘" class="w-28 h-28 rounded-xl object-contain mt-1.5 shadow-md" />
+              </div>
+            </div>
+          </div>
+          <p class="text-xs text-discord-muted mt-3 text-center">
+            ▲ 봇의 이름/프사가 아닌 <strong class="text-white">내 닉네임과 내 프로필 사진</strong>으로, 이중 박스 없이 이미지만 깔끔하게 올라옵니다.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 핵심 기능 4가지 -->
+  <section id="features" class="py-16 max-w-6xl mx-auto px-4">
+    <div class="text-center mb-12">
+      <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">디코콘만의 편리한 기능</h2>
+      <p class="text-discord-muted text-sm md:text-base">
+        답답했던 이모지 크기와 스티커 개수 제한 없이 자유롭게 대화하세요.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="glass-card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl mb-4">
+          🔍
+        </div>
+        <h3 class="text-white font-bold text-base mb-2">기본 이모지 자동 확대</h3>
+        <p class="text-discord-muted text-sm leading-relaxed">
+          채팅창에 커스텀 이모지 1개만 단독으로 입력하면 내 닉네임과 프로필 사진 그대로 <strong>128px 고화질 큰 이모지</strong>로 깔끔하게 바꿔줍니다.
+        </p>
+      </div>
+
+      <div class="glass-card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-4">
+          💬
+        </div>
+        <h3 class="text-white font-bold text-base mb-2"><code>:콘이름:</code> 빠른 전송</h3>
+        <p class="text-discord-muted text-sm leading-relaxed">
+          서버 스티커 슬롯 제한에 얽매이지 마세요. 등록된 커스텀 콘을 기본 이모지 형식 그대로 <code>:바부:</code> (또는 <code>;바부</code>)로 입력해 0.1초 만에 바로 보낼 수 있습니다.
+        </p>
+      </div>
+
+      <div class="glass-card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-4">
+          🌐
+        </div>
+        <h3 class="text-white font-bold text-base mb-2">어디서나 <code>/콘</code> 초성 검색</h3>
+        <p class="text-discord-muted text-sm leading-relaxed">
+          봇이 없는 다른 서버나 친구와의 개인 DM에서도 <code>/콘</code> 초성 자동완성(<code>ㅂㅂ</code> ➔ <code>바부</code>)과 <code>/이모지확대</code>를 사용할 수 있습니다.
+        </p>
+      </div>
+
+      <div class="glass-card rounded-2xl p-6">
+        <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl mb-4">
+          ⚡
+        </div>
+        <h3 class="text-white font-bold text-base mb-2">우클릭 한 번으로 콘 저장</h3>
+        <p class="text-discord-muted text-sm leading-relaxed">
+          채팅방에 올라온 마음에 드는 짤이나 이모지를 <strong>우클릭 ➔ 앱 ➔ 콘으로 저장</strong>만 누르면 즉시 내 콘 목록에 추가됩니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 사용법 요약 표 -->
+  <section id="usage" class="py-12 bg-discord-sidebar/50 border-y border-white/5">
+    <div class="max-w-6xl mx-auto px-4">
+      <h2 class="text-2xl font-bold text-white mb-6">명령어 및 사용법 한눈에 보기</h2>
+      <div class="overflow-x-auto rounded-2xl border border-white/10">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-discord-dark text-discord-muted border-b border-white/10">
+              <th class="py-3.5 px-4 font-semibold">입력 / 동작</th>
+              <th class="py-3.5 px-4 font-semibold">사용 가능 위치</th>
+              <th class="py-3.5 px-4 font-semibold">설명</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5 bg-discord-bg">
+            <tr>
+              <td class="py-3.5 px-4 font-mono text-indigo-300">:커스텀이모지: (단독 입력)</td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-xs">디코콘이 초대된 서버</span></td>
+              <td class="py-3.5 px-4 text-discord-text">내 닉네임·프사 그대로 테두리 없이 128px 큰 이모지로 자동 전환</td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4 font-mono text-emerald-300">:콘이름: (예: :바부:)</td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-xs">디코콘이 초대된 서버</span></td>
+              <td class="py-3.5 px-4 text-discord-text">등록된 커스텀 콘을 내 닉네임·프사로 즉시 전송</td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4 font-mono text-amber-300">/콘 [이름]</td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-xs">모든 서버 · 개인 DM</span></td>
+              <td class="py-3.5 px-4 text-discord-text">초성 검색(<code>ㅂㅂ</code>) 및 실시간 자동완성 목록에서 콘 선택 후 전송</td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4 font-mono text-amber-300">/이모지확대 [이모지] [크기]</td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-xs">모든 서버 · 개인 DM</span></td>
+              <td class="py-3.5 px-4 text-discord-text">80px / 96px / 128px / 160px / 256px 원하는 크기로 이모지 확대 전송</td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4 font-semibold text-rose-300">메시지 우클릭 ➔ 앱 ➔ 콘으로 저장</td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-xs">모든 서버 · 개인 DM</span></td>
+              <td class="py-3.5 px-4 text-discord-text">채팅방의 이미지나 이모지를 클릭 한 번으로 콘 목록에 바로 등록</td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4 font-mono text-sky-300">/콘등록 · /콘목록 · /콘삭제</td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-xs">모든 서버 · 개인 DM</span></td>
+              <td class="py-3.5 px-4 text-discord-text">디스코드 안에서 간편하게 새 콘 추가, 전체 목록 확인 및 삭제</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 브라우저 콘 보관함 -->
+  <section id="local-deck" class="py-16 max-w-6xl mx-auto px-4">
+    <div class="glass-card rounded-2xl p-6 md:p-8">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5 mb-6">
+        <div>
+          <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Quick Browser Deck</span>
+          <h2 class="text-2xl font-bold text-white mt-1">🗂️ 내 브라우저 콘 보관함</h2>
+          <p class="text-sm text-discord-muted mt-1">
+            자주 쓰는 콘을 내 웹 브라우저에 직접 저장해 두고, 클릭 한 번으로 복사하거나 디스코드 채널에 바로 전송해 보세요.
+          </p>
+        </div>
+      </div>
+
+      <!-- 콘 추가 & 웹훅 설정 폼 -->
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <!-- 새 로컬 콘 등록 -->
+        <div class="bg-discord-dark/70 rounded-xl p-4 border border-white/10 space-y-3">
+          <h3 class="text-sm font-bold text-white">➕ 보관함에 새 콘 추가하기</h3>
+          <div class="grid grid-cols-3 gap-2">
+            <input id="deck-con-name" type="text" placeholder="콘 이름 (예: 바부)"
+                   class="col-span-1 px-3 py-2 rounded-lg bg-discord-bg border border-white/10 text-sm text-white focus:outline-none focus:border-discord-blurple" />
+            <input id="deck-con-url" type="text" placeholder="이미지 주소(https://...) 또는 아래 파일 선택"
+                   class="col-span-2 px-3 py-2 rounded-lg bg-discord-bg border border-white/10 text-sm text-white focus:outline-none focus:border-discord-blurple" />
+          </div>
+          <div class="flex items-center justify-between gap-2 pt-1">
+            <label class="text-xs text-discord-muted cursor-pointer hover:text-white flex items-center gap-1.5">
+              <span>📁 내 기기에서 이미지 파일 선택 (자동 128px 변환)</span>
+              <input id="deck-con-file" type="file" accept="image/*" class="hidden" onchange="handleLocalFileSelect(event)" />
+            </label>
+            <button onclick="addConToLocalDeck()" class="px-4 py-2 rounded-lg bg-discord-blurple hover:bg-discord-blurpleHover text-white text-xs font-bold transition">
+              보관함에 저장
+            </button>
+          </div>
+        </div>
+
+        <!-- 선택: 웹훅 직통 발사 설정 -->
+        <div class="bg-discord-dark/70 rounded-xl p-4 border border-white/10 space-y-3">
+          <h3 class="text-sm font-bold text-white">🚀 클릭 시 디스코드로 바로 쏘기 (선택 설정)</h3>
+          <input id="deck-webhook-url" type="password" placeholder="디스코드 채널 웹훅 URL (비워두면 클릭 시 클립보드 복사)"
+                 oninput="saveWebhookSettings()"
+                 class="w-full px-3 py-2 rounded-lg bg-discord-bg border border-white/10 text-sm text-white focus:outline-none focus:border-discord-blurple" />
+          <div class="grid grid-cols-2 gap-2">
+            <input id="deck-username" type="text" placeholder="표시할 내 닉네임"
+                   oninput="saveWebhookSettings()"
+                   class="px-3 py-2 rounded-lg bg-discord-bg border border-white/10 text-xs text-white focus:outline-none focus:border-discord-blurple" />
+            <input id="deck-avatar" type="text" placeholder="내 프로필 사진 URL (선택)"
+                   oninput="saveWebhookSettings()"
+                   class="px-3 py-2 rounded-lg bg-discord-bg border border-white/10 text-xs text-white focus:outline-none focus:border-discord-blurple" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 알림 토스트 -->
+      <div id="deck-toast" class="hidden mb-4 px-4 py-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-sm font-medium"></div>
+
+      <!-- 저장된 콘 그리드 -->
+      <div id="deck-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4"></div>
+    </div>
+  </section>
+
+  <!-- 단계별 튜토리얼 (봇 생성 / 리눅스 배포 / 로컬 PC) -->
+  <section id="tutorial" class="py-16 bg-discord-sidebar/40 border-t border-white/5">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-10">
+        <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">🛠️ 나만의 디코콘 봇 직접 구축 가이드</h2>
+        <p class="text-discord-muted text-sm">
+          직접 독립된 봇으로 운영하고 싶다면 아래 가이드를 순서대로 따라 해보세요.
+        </p>
+      </div>
+
+      <!-- 탭 버튼 -->
+      <div class="flex flex-wrap justify-center gap-2 mb-8">
+        <button onclick="switchTab('tab-bot')" id="btn-tab-bot"
+                class="tab-btn px-5 py-2.5 rounded-xl font-bold text-sm bg-discord-blurple text-white transition">
+          1️⃣ 디스코드 봇 발급 (최초 1회)
+        </button>
+        <button onclick="switchTab('tab-linux')" id="btn-tab-linux"
+                class="tab-btn px-5 py-2.5 rounded-xl font-bold text-sm bg-discord-dark text-discord-muted hover:text-white transition">
+          2️⃣ 리눅스 / 클라우드 24시간 운영
+        </button>
+        <button onclick="switchTab('tab-local')" id="btn-tab-local"
+                class="tab-btn px-5 py-2.5 rounded-xl font-bold text-sm bg-discord-dark text-discord-muted hover:text-white transition">
+          3️⃣ 윈도우 PC에서 바로 실행
+        </button>
+      </div>
+
+      <!-- 탭 1: 디스코드 개발자 포털 세팅 -->
+      <div id="tab-bot" class="tab-content glass-card rounded-2xl p-6 md:p-8 space-y-6">
+        <h3 class="text-xl font-bold text-white">1단계: 디스코드 개발자 포털에서 봇 토큰 발급받기</h3>
+        <ol class="space-y-4 text-sm text-discord-text list-decimal list-inside leading-relaxed">
+          <li>
+            <a href="https://discord.com/developers/applications" target="_blank" class="text-indigo-400 underline font-semibold">Discord Developer Portal</a>에 접속해 우측 상단 <strong>[New Application]</strong>을 눌러 앱(예: <code>디코콘</code>)을 생성합니다.
+          </li>
+          <li>
+            좌측 메뉴 <strong>[Installation]</strong> 클릭:
+            <ul class="list-disc list-inside ml-5 mt-1 text-discord-muted space-y-1">
+              <li><strong>Installation Contexts</strong>에서 <code>User Install</code>과 <code>Guild Install</code>을 <strong>모두 체크</strong>합니다.</li>
+              <li><strong>Default Install Settings</strong>에서 Guild Install에는 <code>applications.commands</code>, <code>bot</code> 스코프와 <code>Manage Webhooks</code>, <code>Manage Messages</code> 권한을 추가하고 저장합니다.</li>
+            </ul>
+          </li>
+          <li>
+            좌측 메뉴 <strong>[Bot]</strong> 클릭:
+            <ul class="list-disc list-inside ml-5 mt-1 text-discord-muted space-y-1">
+              <li><strong>[Reset Token]</strong>을 눌러 발급된 토큰을 복사해 <code>.env</code> 파일의 <code>DISCORD_TOKEN=</code> 뒤에 붙여넣습니다.</li>
+              <li>아래로 스크롤해 <strong>Privileged Gateway Intents</strong>의 ✅ <strong>MESSAGE CONTENT INTENT</strong>를 반드시 켜고 저장합니다.</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+
+      <!-- 탭 2: 리눅스 / 오라클 클라우드 24시간 배포 -->
+      <div id="tab-linux" class="tab-content hidden glass-card rounded-2xl p-6 md:p-8 space-y-6">
+        <h3 class="text-xl font-bold text-white">2단계: 리눅스 서버(Oracle Cloud 등)에 24시간 올려두기</h3>
+        <p class="text-sm text-discord-muted">
+          포함된 <code>install_linux.sh</code> 스크립트를 실행하면 파이썬 가상환경 설치부터 <strong>systemd 자동 재시작 백그라운드 서비스 등록</strong>까지 한 번에 완료됩니다.
+        </p>
+
+        <div class="space-y-4">
+          <div>
+            <p class="text-xs font-bold text-indigo-300 mb-1.5">방법 A. 일반 리눅스 서버 (원클릭 자동 설치)</p>
+            <div class="flex items-center justify-between bg-discord-dark p-3.5 rounded-xl border border-white/10 font-mono text-xs text-emerald-300">
+              <span>chmod +x install_linux.sh && ./install_linux.sh</span>
+              <button onclick="copyCmd('chmod +x install_linux.sh && ./install_linux.sh')" class="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 text-white text-[11px]">복사</button>
+            </div>
+          </div>
+
+          <div>
+            <p class="text-xs font-bold text-indigo-300 mb-1.5">방법 B. Docker가 설치된 서버 또는 NAS</p>
+            <div class="flex items-center justify-between bg-discord-dark p-3.5 rounded-xl border border-white/10 font-mono text-xs text-emerald-300">
+              <span>docker compose up -d --build</span>
+              <button onclick="copyCmd('docker compose up -d --build')" class="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 text-white text-[11px]">복사</button>
+            </div>
+          </div>
+
+          <div>
+            <p class="text-xs font-bold text-discord-muted mb-1.5">실시간 작동 로그 확인 명령어</p>
+            <div class="flex items-center justify-between bg-discord-dark p-3.5 rounded-xl border border-white/10 font-mono text-xs text-discord-text">
+              <span>sudo journalctl -u discord-conbot -f</span>
+              <button onclick="copyCmd('sudo journalctl -u discord-conbot -f')" class="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 text-white text-[11px]">복사</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 탭 3: 윈도우 로컬 실행 -->
+      <div id="tab-local" class="tab-content hidden glass-card rounded-2xl p-6 md:p-8 space-y-6">
+        <h3 class="text-xl font-bold text-white">3단계: 별도 서버 없이 내 윈도우 PC에서 바로 쓰기</h3>
+        <ul class="space-y-3 text-sm text-discord-text list-disc list-inside leading-relaxed">
+          <li><strong>일반 실행 (콘솔 창 확인용)</strong>: 폴더 내 <code>실행.bat</code> 더블클릭</li>
+          <li><strong>창 없이 조용히 백그라운드 실행</strong>: <code>백그라운드_실행.vbs</code> 더블클릭</li>
+          <li><strong>컴퓨터 켤 때마다 자동 실행하기</strong>: <kbd class="px-1.5 py-0.5 rounded bg-black/50 text-xs">Win + R</kbd> 입력 후 <code>shell:startup</code> 실행 ➔ 열리는 시작프로그램 폴더에 <code>백그라운드_실행.vbs</code>의 바로가기를 넣어두면 자동 시작됩니다.</li>
+          <li><strong>백그라운드 종료</strong>: <code>백그라운드_종료.bat</code> 더블클릭</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 푸터 -->
+  <footer class="mt-auto py-8 border-t border-white/5 text-center text-xs text-discord-muted">
+    <div class="flex items-center justify-center gap-2 mb-2">
+      <img src="./icon.png" alt="DiCoCon" class="w-5 h-5 rounded-md" />
+      <span class="font-bold text-white">디코콘 (DiCoCon)</span>
+    </div>
+    <p>디스코드 큰 이모지 & 무제한 커스텀 콘 유틸리티</p>
+  </footer>
+
+  <script>
+    const DEFAULT_CLIENT_ID = localStorage.getItem('dicocon_client_id') || '1564117482393051206';
+
+    function updateInviteLinks(clientId) {
+      const cid = (clientId || '').trim();
+      const guildBtn = document.getElementById('btn-guild-invite');
+      const userBtn = document.getElementById('btn-user-install');
+
+      if (!cid) {
+        guildBtn.href = 'javascript:alert("아래 [⚙️ 직접 호스팅 중인 봇의 Application ID로 초대 링크 연결하기]를 눌러 Application ID를 먼저 입력해주세요!")';
+        userBtn.href = 'javascript:alert("아래 [⚙️ 직접 호스팅 중인 봇의 Application ID로 초대 링크 연결하기]를 눌러 Application ID를 먼저 입력해주세요!")';
+        return;
+      }
+
+      // 권한 536879104 = Manage Webhooks + Manage Messages + View Channels + Send Messages + Attach Files + Read Message History
+      guildBtn.href = `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(cid)}&permissions=536879104&integration_type=0&scope=bot+applications.commands`;
+      userBtn.href = `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(cid)}&integration_type=1&scope=applications.commands`;
+    }
+
+    function toggleClientIdBox() {
+      const box = document.getElementById('client-id-box');
+      box.classList.toggle('hidden');
+    }
+
+    function saveClientId() {
+      const val = document.getElementById('input-client-id').value.trim();
+      localStorage.setItem('dicocon_client_id', val);
+      updateInviteLinks(val);
+      showToast('✅ Application ID가 저장되어 초대 버튼에 적용되었습니다!');
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.className = 'tab-btn px-5 py-2.5 rounded-xl font-bold text-sm bg-discord-dark text-discord-muted hover:text-white transition';
+      });
+      const activeBtn = document.getElementById('btn-' + tabId);
+      activeBtn.className = 'tab-btn px-5 py-2.5 rounded-xl font-bold text-sm bg-discord-blurple text-white transition';
+    }
+
+    function copyCmd(text) {
+      navigator.clipboard.writeText(text);
+      showToast(`📋 명령어가 복사되었습니다: ${text}`);
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('deck-toast');
+      t.textContent = msg;
+      t.classList.remove('hidden');
+      setTimeout(() => t.classList.add('hidden'), 3200);
+    }
+
+    // 브라우저 로컬 콘 보관함
+    function getLocalCons() {
+      try {
+        return JSON.parse(localStorage.getItem('dicocon_local_deck') || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveLocalCons(list) {
+      localStorage.setItem('dicocon_local_deck', JSON.stringify(list));
+      renderLocalDeck();
+    }
+
+    function handleLocalFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const nameInput = document.getElementById('deck-con-name');
+      if (!nameInput.value.trim()) {
+        nameInput.value = file.name.replace(/\.[^/.]+$/, '');
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const max = 128;
+          let w = img.width, h = img.height;
+          if (w > max || h > max) {
+            const r = Math.min(max / w, max / h);
+            w = Math.round(w * r);
+            h = Math.round(h * r);
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          document.getElementById('deck-con-url').value = canvas.toDataURL('image/png');
+          showToast('✨ 이미지가 128px 콘 크기로 준비되었습니다. [보관함에 저장]을 눌러주세요!');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function addConToLocalDeck() {
+      const name = document.getElementById('deck-con-name').value.trim();
+      const url = document.getElementById('deck-con-url').value.trim();
+      if (!name || !url) {
+        showToast('⚠️ 콘 이름과 이미지 주소(또는 파일)를 모두 입력해주세요.');
+        return;
+      }
+      const list = getLocalCons().filter(item => item.name !== name);
+      list.unshift({ name, url });
+      saveLocalCons(list);
+      document.getElementById('deck-con-name').value = '';
+      document.getElementById('deck-con-url').value = '';
+      showToast(`✅ '${name}' 콘이 내 브라우저 보관함에 저장되었습니다!`);
+    }
+
+    function removeLocalCon(name, e) {
+      e.stopPropagation();
+      const list = getLocalCons().filter(item => item.name !== name);
+      saveLocalCons(list);
+      showToast(`🗑️ '${name}' 콘이 삭제되었습니다.`);
+    }
+
+    async function useLocalCon(item) {
+      const webhookUrl = document.getElementById('deck-webhook-url').value.trim();
+      const username = document.getElementById('deck-username').value.trim() || '디코콘 유저';
+      const avatarUrl = document.getElementById('deck-avatar').value.trim();
+
+      if (webhookUrl && webhookUrl.startsWith('https://discord.com/api/webhooks/')) {
+        try {
+          if (item.url.startsWith('data:image/')) {
+            const res = await fetch(item.url);
+            const blob = await res.blob();
+            const form = new FormData();
+            form.append('payload_json', JSON.stringify({
+              username,
+              avatar_url: avatarUrl || undefined
+            }));
+            form.append('file', blob, `${item.name}.png`);
+            await fetch(webhookUrl, { method: 'POST', body: form });
+          } else {
+            await fetch(webhookUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                content: item.url,
+                username,
+                avatar_url: avatarUrl || undefined
+              })
+            });
+          }
+          showToast(`🚀 디스코드 채널로 '${item.name}' 콘을 즉시 전송했습니다!`);
+          return;
+        } catch (err) {
+          showToast('❌ 웹훅 전송 실패 — 클립보드 복사로 대체합니다.');
+        }
+      }
+
+      await navigator.clipboard.writeText(item.url);
+      showToast(`📋 '${item.name}' 이미지 주소가 복사되었습니다! 디스코드 채팅창에 붙여넣기(Ctrl+V) 하세요.`);
+    }
+
+    function saveWebhookSettings() {
+      localStorage.setItem('dicocon_wh_url', document.getElementById('deck-webhook-url').value.trim());
+      localStorage.setItem('dicocon_wh_name', document.getElementById('deck-username').value.trim());
+      localStorage.setItem('dicocon_wh_avatar', document.getElementById('deck-avatar').value.trim());
+    }
+
+    function renderLocalDeck() {
+      const grid = document.getElementById('deck-grid');
+      const list = getLocalCons();
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-10 text-center text-discord-muted text-sm border border-dashed border-white/10 rounded-xl">
+            아직 보관함에 저장된 콘이 없습니다. 위 입력창에서 자주 쓰는 콘을 추가해보세요!
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = list.map(item => `
+        <div onclick='useLocalCon(${JSON.stringify(item).replace(/'/g, "&#39;")})'
+             class="group relative bg-discord-dark hover:bg-discord-blurple/20 border border-white/10 hover:border-discord-blurple rounded-xl p-3 flex flex-col items-center cursor-pointer transition">
+          <button onclick="removeLocalCon('${item.name.replace(/'/g, "\\'")}', event)"
+                  class="opacity-0 group-hover:opacity-100 absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-rose-600 text-white text-xs flex items-center justify-center transition"
+                  title="삭제">✕</button>
+          <img src="${item.url}" alt="${item.name}" class="w-20 h-20 object-contain rounded-lg mb-2" />
+          <span class="text-xs font-semibold text-white truncate max-w-full">;${item.name}</span>
+        </div>
+      `).join('');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('input-client-id').value = DEFAULT_CLIENT_ID;
+      updateInviteLinks(DEFAULT_CLIENT_ID);
+      document.getElementById('deck-webhook-url').value = localStorage.getItem('dicocon_wh_url') || '';
+      document.getElementById('deck-username').value = localStorage.getItem('dicocon_wh_name') || '';
+      document.getElementById('deck-avatar').value = localStorage.getItem('dicocon_wh_avatar') || '';
+      renderLocalDeck();
+    });
+  </script>
+</body>
+</html>
