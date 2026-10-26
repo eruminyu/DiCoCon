@@ -271,9 +271,11 @@ class ConBot(commands.Bot):
         self.webhook_cache: Dict[int, discord.Webhook] = {}
 
     async def setup_hook(self):
-        # Koyeb / Render 등 무료 클라우드(Web Service) 배포 시 Health Check 통과용 경량 웹 서버 구동
+        # Koyeb / Render 등 무료 클라우드(Web Service) 배포 시 Health Check 통과 및 자동 절전 방지(Self-Ping)
         port_str = os.getenv("PORT", "").strip()
         if port_str.isdigit():
+            import asyncio
+            import aiohttp
             from aiohttp import web
 
             async def handle_health(request):
@@ -287,6 +289,23 @@ class ConBot(commands.Bot):
             site = web.TCPSite(runner, "0.0.0.0", int(port_str))
             await site.start()
             print(f"🌐 클라우드 헬스체크 웹 서버 가동 완료 (Port: {port_str})")
+
+            # Render가 자동 제공하는 외부 URL(RENDER_EXTERNAL_URL)로 10분마다 스스로 신호를 보내 절전 방지
+            external_url = os.getenv("RENDER_EXTERNAL_URL", "").strip()
+            if external_url:
+                async def keep_alive_loop():
+                    ping_target = f"{external_url.rstrip('/')}/health"
+                    while True:
+                        await asyncio.sleep(600)  # 10분 간격
+                        try:
+                            async with aiohttp.ClientSession() as session:
+                                async with session.get(ping_target, timeout=10) as resp:
+                                    pass
+                        except Exception:
+                            pass
+
+                asyncio.create_task(keep_alive_loop())
+                print(f"⏰ Render 24시간 자동 절전 방지(Self-Ping) 활성화 완료: {external_url}")
 
         if LOCAL_MODE:
             save_con_menu = app_commands.ContextMenu(
