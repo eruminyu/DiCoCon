@@ -10,7 +10,7 @@
 [![discord.py](https://img.shields.io/badge/discord.py-2.4+-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discordpy.readthedocs.io/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white)](./Dockerfile)
 
-[🌐 **공식 소개 & 콘 보관함 웹페이지**](https://eruminyu.github.io/DiCoCon/) · [🏠 **내 서버에 봇 초대하기**](https://discord.com/oauth2/authorize?client_id=1564117482393051206&permissions=536879104&integration_type=0&scope=bot+applications.commands) · [👤 **내 계정에 앱 추가하기 (모든 서버·DM용)**](https://discord.com/oauth2/authorize?client_id=1564117482393051206&integration_type=1&scope=applications.commands)
+[🌐 **공식 소개 & 콘 보관함 웹페이지**](https://dicocon.vercel.app) · [🏠 **내 서버에 봇 초대하기**](https://discord.com/oauth2/authorize?client_id=1564117482393051206&permissions=536879104&integration_type=0&scope=bot+applications.commands) · [👤 **내 계정에 앱 추가하기 (모든 서버·DM용)**](https://discord.com/oauth2/authorize?client_id=1564117482393051206&integration_type=1&scope=applications.commands)
 
 </div>
 
@@ -31,7 +31,7 @@ PC 디스코드에서 기본 이모지(48px)는 너무 작아서 잘 보이지 �
 | 💬 **`:콘이름:` 빠른 호출** | 서버 스티커 슬롯 제한 없이 등록된 커스텀 콘을 `:바부:` (또는 단축 입력 `;바부`) 형태로 입력해 0.1초 만에 전송합니다. |
 | 🌐 **모든 서버 & 개인 DM `/콘`** | 내 계정에 앱을 추가(User Install)하면, 봇이 없는 다른 서버나 친구와의 1:1 DM에서도 **초성 검색(`ㅂㅂ` ➔ `바부`) 자동완성**으로 콘과 `/이모지확대`를 사용할 수 있습니다. |
 | ⚡ **우클릭 한 번으로 콘 저장** | 채팅방에 올라온 이미지나 이모지를 **`우클릭 ➔ 앱 ➔ 콘으로 저장`**만 누르면 즉시 내 콘 목록에 추가됩니다. |
-| 🗂️ **브라우저 콘 보관함 웹 제공** | [공식 웹페이지](https://eruminyu.github.io/DiCoCon/)에서 내 브라우저에 콘을 모아두고 클릭 한 번으로 복사하거나 웹훅으로 즉시 전송할 수 있습니다. |
+| 🗂️ **브라우저 콘 보관함 웹 제공** | [공식 웹페이지](https://dicocon.vercel.app)에서 내 브라우저에 콘을 모아두고 클릭 한 번으로 복사하거나 웹훅으로 즉시 전송할 수 있습니다. |
 
 ---
 
