@@ -29,6 +29,10 @@ CON_MAX_SIZE = int(os.getenv("CON_MAX_SIZE", "140"))
 CON_PREFIX = os.getenv("CON_PREFIX", ";").strip() or ";"
 AUTO_ENLARGE_EMOJI = os.getenv("AUTO_ENLARGE_EMOJI", "true").lower() == "true"
 
+# LOCAL_MODE=true 일 때만 커스텀 콘 저장(/콘, /콘등록, 우클릭 콘으로 저장 등) 활성화
+# 온라인 초대링크 배포 서버(Render/Koyeb 등)에서는 기본값 false로 동작하여 디스코드 자체 이모지 확대만 수행
+LOCAL_MODE = os.getenv("LOCAL_MODE", "false").lower() == "true"
+
 raw_allowed = os.getenv("ALLOWED_USER_IDS", "").strip()
 ALLOWED_USER_IDS = {int(x.strip()) for x in raw_allowed.split(",") if x.strip().isdigit()}
 
@@ -284,21 +288,24 @@ class ConBot(commands.Bot):
             await site.start()
             print(f"🌐 클라우드 헬스체크 웹 서버 가동 완료 (Port: {port_str})")
 
-        save_con_menu = app_commands.ContextMenu(
-            name="콘으로 저장",
-            callback=self.context_save_con,
-        )
-        save_con_menu.allowed_installs = app_commands.AppInstallationType(guild=True, user=True)
-        save_con_menu.allowed_contexts = app_commands.AppCommandContext(
-            guild=True, dm_channel=True, private_channel=True
-        )
-        self.tree.add_command(save_con_menu)
+        if LOCAL_MODE:
+            save_con_menu = app_commands.ContextMenu(
+                name="콘으로 저장",
+                callback=self.context_save_con,
+            )
+            save_con_menu.allowed_installs = app_commands.AppInstallationType(guild=True, user=True)
+            save_con_menu.allowed_contexts = app_commands.AppCommandContext(
+                guild=True, dm_channel=True, private_channel=True
+            )
+            self.tree.add_command(save_con_menu)
 
         await self.tree.sync()
-        print("🔄 슬래시 명령어(/콘, /이모지확대, /콘등록, /콘목록, /콘삭제, 우클릭 '콘으로 저장') 동기화 완료!")
+        if LOCAL_MODE:
+            print("🔄 [로컬 모드] 전체 슬래시 명령어(/이모지확대, /콘, /콘등록, /콘목록, /콘삭제, 우클릭 '콘으로 저장') 동기화 완료!")
+        else:
+            print("🔄 [온라인 배포 모드] 디스코드 자체 이모지 확대 전용(/이모지확대) 명령어 동기화 완료!")
 
     async def on_ready(self):
-        cons = get_available_cons()
         app_id = self.application_id or self.user.id
         guild_invite_url = (
             f"https://discord.com/oauth2/authorize?client_id={app_id}"
@@ -326,17 +333,20 @@ class ConBot(commands.Bot):
 
         print("=" * 70)
         print(f"✅ 디코콘(DiCoCon) 봇 로그인 완료: {self.user} (ID: {app_id})")
-        print(f"📂 현재 사용 가능한 콘 개수: {len(cons)}개 (경량 URL DB + cons/ 폴더)")
+        print(f"⚙️ 실행 모드: {'로컬 전체 기능 모드 (커스텀 콘 저장 활성)' if LOCAL_MODE else '온라인 클라우드 모드 (디스코드 자체 이모지 확대 전용)'}")
         print(f"🔍 기본 이모지 자동 확대: {'켜짐' if AUTO_ENLARGE_EMOJI else '꺼짐'} ({EMOJI_SIZE}px)")
-        print(f"💬 채팅창 콘 호출 방법: ':콘이름:' 또는 '{CON_PREFIX}콘이름' (예: :바부: / {CON_PREFIX}바부)")
+        if LOCAL_MODE:
+            cons = get_available_cons()
+            print(f"📂 현재 사용 가능한 로컬 콘 개수: {len(cons)}개")
+            print(f"💬 채팅창 콘 호출 방법: ':콘이름:' 또는 '{CON_PREFIX}콘이름'")
         print("-" * 70)
         print("🔗 [1] 내 서버에 봇 초대하기 링크 (Ctrl+클릭 또는 복사하여 브라우저에 입력):")
         print(f"   {guild_invite_url}")
         print()
-        print("🔗 [2] 내 계정에 앱 추가하기 링크 (모든 서버/DM에서 /콘 사용):")
+        print("🔗 [2] 내 계정에 앱 추가하기 링크 (모든 서버/DM에서 사용):")
         print(f"   {user_install_url}")
         print("=" * 70)
-        print("💡 이 창을 켜두는 동안 봇이 작동합니다. 이제 디스코드에서 ':바부:' 또는 '/콘'을 입력해보세요!")
+        print("💡 이 창을 켜두는 동안 봇이 작동합니다. 이제 디스코드에서 이모지를 보내보세요!")
 
     async def get_or_create_webhook(self, channel: discord.abc.GuildChannel) -> Optional[discord.Webhook]:
         target_channel = channel.parent if isinstance(channel, discord.Thread) else channel
@@ -416,30 +426,29 @@ class ConBot(commands.Bot):
 
         text = message.content.strip()
 
-        # 1) ':콘이름:' 또는 ';콘이름' 형태의 커스텀 콘 호출 감지 (URL 콘 및 로컬 콘 모두 지원)
-        query = None
-        if text.startswith(":") and text.endswith(":") and len(text) > 2 and " " not in text:
-            query = text[1:-1].strip()
-        elif text.startswith(CON_PREFIX) and len(text) > len(CON_PREFIX):
-            query = text[len(CON_PREFIX):].strip()
+        # 1) [로컬 모드 전용] ':콘이름:' 또는 ';콘이름' 형태의 커스텀 콘 호출 감지
+        if LOCAL_MODE:
+            query = None
+            if text.startswith(":") and text.endswith(":") and len(text) > 2 and " " not in text:
+                query = text[1:-1].strip()
+            elif text.startswith(CON_PREFIX) and len(text) > len(CON_PREFIX):
+                query = text[len(CON_PREFIX):].strip()
 
-        if query:
-            cons = get_available_cons(user_id=message.author.id)
-            target = cons.get(query)
-            if target:
-                try:
-                    await message.delete()
-                except discord.Forbidden:
-                    print("[권한 부족] 원본 메시지를 삭제할 '메시지 관리(Manage Messages)' 권한이 없습니다.")
+            if query:
+                cons = get_available_cons(user_id=message.author.id)
+                target = cons.get(query)
+                if target:
+                    try:
+                        await message.delete()
+                    except discord.Forbidden:
+                        print("[권한 부족] 원본 메시지를 삭제할 '메시지 관리(Manage Messages)' 권한이 없습니다.")
 
-                if isinstance(target, str):
-                    # 경량 URL 콘: 서버 파일 업로드 없이 URL만 즉시 전송!
-                    await self.send_as_user_webhook(message, content=target)
-                else:
-                    # 로컬 cons/ 폴더 파일
-                    resized_path = get_resized_con_path(target, CON_MAX_SIZE)
-                    await self.send_as_user_webhook(message, file_path=resized_path)
-                return
+                    if isinstance(target, str):
+                        await self.send_as_user_webhook(message, content=target)
+                    else:
+                        resized_path = get_resized_con_path(target, CON_MAX_SIZE)
+                        await self.send_as_user_webhook(message, file_path=resized_path)
+                    return
 
         # 2) 디스코드 기본 커스텀 이모지 단독 1개 입력 시 자동 확대
         if AUTO_ENLARGE_EMOJI:
@@ -523,28 +532,6 @@ async def con_name_autocomplete(
     return choices
 
 
-@bot.tree.command(name="콘", description="등록된 커스텀 콘을 큰 이미지로 전송합니다 (초성/이름 검색 가능)")
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(이름="보낼 콘의 이름을 입력하거나 목록에서 선택하세요")
-@app_commands.autocomplete(이름=con_name_autocomplete)
-async def slash_con(interaction: discord.Interaction, 이름: str):
-    cons = get_available_cons(user_id=interaction.user.id)
-    target = cons.get(이름)
-    if not target:
-        await interaction.response.send_message(
-            f"❌ `{이름}` 콘을 찾을 수 없습니다. `/콘등록`을 쓰거나 메시지를 우클릭해 `콘으로 저장`을 눌러보세요!",
-            ephemeral=True,
-        )
-        return
-
-    if isinstance(target, str):
-        await interaction.response.send_message(content=target)
-    else:
-        resized_path = get_resized_con_path(target, CON_MAX_SIZE)
-        await interaction.response.send_message(file=discord.File(resized_path))
-
-
 @bot.tree.command(name="이모지확대", description="디스코드 기본 커스텀 이모지를 임베드 테두리 없이 원하는 크기로 확대해서 보냅니다")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -580,96 +567,129 @@ async def slash_enlarge_emoji(
     await interaction.response.send_message(content=url)
 
 
-@bot.tree.command(name="콘등록", description="서버 용량을 차지하지 않고 이미지 주소(URL)나 파일로 새 콘을 등록합니다")
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(
-    이름="저장할 콘 이름 (예: 바부)",
-    이미지주소="등록할 이미지 URL 또는 커스텀 이모지 (선택)",
-    파일="또는 내 기기에서 업로드할 이미지 파일 (선택 - 디스코드 CDN URL로 저장됨)",
-)
-async def slash_register_con(
-    interaction: discord.Interaction,
-    이름: str,
-    이미지주소: Optional[str] = None,
-    파일: Optional[discord.Attachment] = None,
-):
-    safe_name = re.sub(r'[\\/:*?"<>|]', "_", 이름.strip())
-    if not safe_name:
-        await interaction.response.send_message("❌ 사용할 수 없는 이름입니다.", ephemeral=True)
-        return
-
-    target_url = None
-    if 파일 is not None:
-        target_url = 파일.url
-    elif 이미지주소:
-        em_match = ANY_EMOJI_PATTERN.search(이미지주소)
-        if em_match:
-            is_anim, _, em_id = em_match.groups()
-            ext = ".gif" if is_anim == "a" else ".webp"
-            target_url = f"https://cdn.discordapp.com/emojis/{em_id}{ext}?size={EMOJI_SIZE}&quality=lossless"
-        elif 이미지주소.startswith(("http://", "https://")):
-            target_url = 이미지주소.strip()
-
-    if not target_url:
-        await interaction.response.send_message(
-            "❌ `이미지주소`(URL/이모지) 또는 `파일` 중 하나를 반드시 입력해주세요!",
-            ephemeral=True,
-        )
-        return
-
-    register_url_con(safe_name, target_url, user_id=interaction.user.id, is_global=True)
-    await interaction.response.send_message(
-        f"✅ **`{safe_name}`** 콘이 등록되었습니다!\n"
-        f"- 서버 채팅: `:{safe_name}:` (또는 `{CON_PREFIX}{safe_name}`)\n"
-        f"- 슬래시 명령어: `/콘 {safe_name}`",
-        ephemeral=True,
-    )
-
-
-@bot.tree.command(name="콘목록", description="현재 등록되어 있는 모든 커스텀 콘 목록을 확인합니다")
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-async def slash_list_cons(interaction: discord.Interaction):
-    cons = get_available_cons(user_id=interaction.user.id)
-    if not cons:
-        await interaction.response.send_message(
-            "📂 아직 등록된 콘이 없습니다.\n`/콘등록` 명령어를 쓰거나 채팅방의 이미지를 우클릭해 `콘으로 저장`을 눌러보세요!",
-            ephemeral=True,
-        )
-        return
-
-    names = sorted(cons.keys())
-    formatted = ", ".join(f"`:{n}:`" for n in names[:100])
-    extra = f"\n...(외 {len(names) - 100}개)" if len(names) > 100 else ""
-    await interaction.response.send_message(
-        f"📂 **등록된 콘 목록 (총 {len(names)}개)**\n"
-        f"호출 방법: 채팅창에 `:이름:` (또는 `{CON_PREFIX}이름`) 입력 또는 `/콘 이름`\n\n"
-        f"{formatted}{extra}",
-        ephemeral=True,
-    )
-
-
-@bot.tree.command(name="콘삭제", description="등록된 커스텀 콘을 삭제합니다")
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(이름="삭제할 콘의 이름을 선택하세요")
-@app_commands.autocomplete(이름=con_name_autocomplete)
-async def slash_delete_con(interaction: discord.Interaction, 이름: str):
-    if delete_con_entry(이름, user_id=interaction.user.id):
-        await interaction.response.send_message(f"🗑️ **`{이름}`** 콘이 삭제되었습니다.", ephemeral=True)
-        return
-
-    # 로컬 파일 삭제 시도 (허용된 유저 또는 관리자만)
-    if not ALLOWED_USER_IDS or interaction.user.id in ALLOWED_USER_IDS:
-        cons = get_available_cons()
+# =====================================================================
+# [로컬 실행 모드 전용] 커스텀 콘 관리 명령어 (LOCAL_MODE=true 일 때만 등록)
+# =====================================================================
+if LOCAL_MODE:
+    @bot.tree.command(name="콘", description="[로컬 전용] 등록된 커스텀 콘을 큰 이미지로 전송합니다 (초성/이름 검색 가능)")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.describe(이름="보낼 콘의 이름을 입력하거나 목록에서 선택하세요")
+    @app_commands.autocomplete(이름=con_name_autocomplete)
+    async def slash_con(interaction: discord.Interaction, 이름: str):
+        cons = get_available_cons(user_id=interaction.user.id)
         target = cons.get(이름)
-        if isinstance(target, Path) and target.exists():
-            target.unlink(missing_ok=True)
-            await interaction.response.send_message(f"🗑️ 로컬 기본 콘 **`{이름}`** 파일이 삭제되었습니다.", ephemeral=True)
+        if not target:
+            await interaction.response.send_message(
+                f"❌ `{이름}` 콘을 찾을 수 없습니다. `/콘등록`을 쓰거나 메시지를 우클릭해 `콘으로 저장`을 눌러보세요!",
+                ephemeral=True,
+            )
             return
 
-    await interaction.response.send_message(f"❌ `{이름}` 콘을 찾을 수 없거나 삭제 권한이 없습니다.", ephemeral=True)
+        if isinstance(target, str):
+            await interaction.response.send_message(content=target)
+        else:
+            resized_path = get_resized_con_path(target, CON_MAX_SIZE)
+            await interaction.response.send_message(file=discord.File(resized_path))
+
+    @bot.tree.command(name="콘등록", description="[로컬 전용] 이미지 주소(URL)나 파일로 새 콘을 등록합니다")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.describe(
+        이름="저장할 콘 이름 (예: 바부)",
+        이미지주소="등록할 이미지 URL 또는 커스텀 이모지 (선택)",
+        파일="또는 내 기기에서 업로드할 이미지 파일 (선택)",
+    )
+    async def slash_register_con(
+        interaction: discord.Interaction,
+        이름: str,
+        이미지주소: Optional[str] = None,
+        파일: Optional[discord.Attachment] = None,
+    ):
+        safe_name = re.sub(r'[\\/:*?"<>|]', "_", 이름.strip())
+        if not safe_name:
+            await interaction.response.send_message("❌ 사용할 수 없는 이름입니다.", ephemeral=True)
+            return
+
+        target_url = None
+        if 파일 is not None:
+            ext = Path(파일.filename).suffix.lower() or ".png"
+            if ext in SUPPORTED_EXTS:
+                save_path = CONS_DIR / f"{safe_name}{ext}"
+                await 파일.save(save_path)
+                await interaction.response.send_message(
+                    f"✅ **`{safe_name}`** 콘이 로컬 `cons/` 폴더에 저장되었습니다!\n"
+                    f"- 서버 채팅: `:{safe_name}:` (또는 `{CON_PREFIX}{safe_name}`)\n"
+                    f"- 슬래시 명령어: `/콘 {safe_name}`",
+                    ephemeral=True,
+                )
+                return
+            target_url = 파일.url
+        elif 이미지주소:
+            em_match = ANY_EMOJI_PATTERN.search(이미지주소)
+            if em_match:
+                is_anim, _, em_id = em_match.groups()
+                ext = ".gif" if is_anim == "a" else ".webp"
+                target_url = f"https://cdn.discordapp.com/emojis/{em_id}{ext}?size={EMOJI_SIZE}&quality=lossless"
+            elif 이미지주소.startswith(("http://", "https://")):
+                target_url = 이미지주소.strip()
+
+        if not target_url:
+            await interaction.response.send_message(
+                "❌ `이미지주소`(URL/이모지) 또는 `파일` 중 하나를 반드시 입력해주세요!",
+                ephemeral=True,
+            )
+            return
+
+        register_url_con(safe_name, target_url, user_id=interaction.user.id, is_global=True)
+        await interaction.response.send_message(
+            f"✅ **`{safe_name}`** 콘이 등록되었습니다!\n"
+            f"- 서버 채팅: `:{safe_name}:` (또는 `{CON_PREFIX}{safe_name}`)\n"
+            f"- 슬래시 명령어: `/콘 {safe_name}`",
+            ephemeral=True,
+        )
+
+    @bot.tree.command(name="콘목록", description="[로컬 전용] 현재 등록되어 있는 모든 커스텀 콘 목록을 확인합니다")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def slash_list_cons(interaction: discord.Interaction):
+        cons = get_available_cons(user_id=interaction.user.id)
+        if not cons:
+            await interaction.response.send_message(
+                "📂 아직 등록된 콘이 없습니다.\n`cons` 폴더에 이미지를 넣거나 `/콘등록` 명령어를 사용해 보세요!",
+                ephemeral=True,
+            )
+            return
+
+        names = sorted(cons.keys())
+        formatted = ", ".join(f"`:{n}:`" for n in names[:100])
+        extra = f"\n...(외 {len(names) - 100}개)" if len(names) > 100 else ""
+        await interaction.response.send_message(
+            f"📂 **등록된 콘 목록 (총 {len(names)}개)**\n"
+            f"호출 방법: 채팅창에 `:이름:` (또는 `{CON_PREFIX}이름`) 입력 또는 `/콘 이름`\n\n"
+            f"{formatted}{extra}",
+            ephemeral=True,
+        )
+
+    @bot.tree.command(name="콘삭제", description="[로컬 전용] 등록된 커스텀 콘을 삭제합니다")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @app_commands.describe(이름="삭제할 콘의 이름을 선택하세요")
+    @app_commands.autocomplete(이름=con_name_autocomplete)
+    async def slash_delete_con(interaction: discord.Interaction, 이름: str):
+        if delete_con_entry(이름, user_id=interaction.user.id):
+            await interaction.response.send_message(f"🗑️ **`{이름}`** 콘이 삭제되었습니다.", ephemeral=True)
+            return
+
+        if not ALLOWED_USER_IDS or interaction.user.id in ALLOWED_USER_IDS:
+            cons = get_available_cons()
+            target = cons.get(이름)
+            if isinstance(target, Path) and target.exists():
+                target.unlink(missing_ok=True)
+                await interaction.response.send_message(f"🗑️ 로컬 콘 **`{이름}`** 파일이 삭제되었습니다.", ephemeral=True)
+                return
+
+        await interaction.response.send_message(f"❌ `{이름}` 콘을 찾을 수 없거나 삭제 권한이 없습니다.", ephemeral=True)
 
 
 if __name__ == "__main__":
