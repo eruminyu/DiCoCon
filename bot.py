@@ -719,8 +719,15 @@ async def run_bot_with_cloud_server(token: str):
     retry_delay = 25
     while True:
         try:
-            async with bot:
-                await bot.start(token)
+            # 이전 시도에서 세션이 닫혔다면 초기화하여 재연결 가능하도록 처리
+            if getattr(bot.http, "_HTTPClient__session", None) is not None:
+                try:
+                    await bot.http.close()
+                except Exception:
+                    pass
+                bot.http._HTTPClient__session = None
+
+            await bot.start(token)
             break
         except discord.errors.HTTPException as e:
             if e.status == 429:
