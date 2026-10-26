@@ -271,42 +271,6 @@ class ConBot(commands.Bot):
         self.webhook_cache: Dict[int, discord.Webhook] = {}
 
     async def setup_hook(self):
-        # Koyeb / Render 등 무료 클라우드(Web Service) 배포 시 Health Check 통과 및 자동 절전 방지(Self-Ping)
-        port_str = os.getenv("PORT", "").strip()
-        if port_str.isdigit():
-            import asyncio
-            import aiohttp
-            from aiohttp import web
-
-            async def handle_health(request):
-                return web.Response(text="DiCoCon Bot is running!", status=200)
-
-            app = web.Application()
-            app.router.add_get("/", handle_health)
-            app.router.add_get("/health", handle_health)
-            runner = web.AppRunner(app)
-            await runner.setup()
-            site = web.TCPSite(runner, "0.0.0.0", int(port_str))
-            await site.start()
-            print(f"🌐 클라우드 헬스체크 웹 서버 가동 완료 (Port: {port_str})")
-
-            # Render가 자동 제공하는 외부 URL(RENDER_EXTERNAL_URL)로 10분마다 스스로 신호를 보내 절전 방지
-            external_url = os.getenv("RENDER_EXTERNAL_URL", "").strip()
-            if external_url:
-                async def keep_alive_loop():
-                    ping_target = f"{external_url.rstrip('/')}/health"
-                    while True:
-                        await asyncio.sleep(600)  # 10분 간격
-                        try:
-                            async with aiohttp.ClientSession() as session:
-                                async with session.get(ping_target, timeout=10) as resp:
-                                    pass
-                        except Exception:
-                            pass
-
-                asyncio.create_task(keep_alive_loop())
-                print(f"⏰ Render 24시간 자동 절전 방지(Self-Ping) 활성화 완료: {external_url}")
-
         if LOCAL_MODE:
             save_con_menu = app_commands.ContextMenu(
                 name="콘으로 저장",
@@ -711,7 +675,68 @@ if LOCAL_MODE:
         await interaction.response.send_message(f"❌ `{이름}` 콘을 찾을 수 없거나 삭제 권한이 없습니다.", ephemeral=True)
 
 
+async def run_bot_with_cloud_server(token: str):
+    """
+    1) 클라우드 배포(Render/Koyeb 등) 시 디스코드 로그인 전에 HTTP 포트를 가장 먼저 열어
+       'No open ports detected' 배포 실패를 방지합니다.
+    2) 무료 클라우드 공용 IP에서 발생하는 Discord 429(Rate Limit) 에러 시
+       프로세스가 죽어서 재시작 루프에 빠지지 않고 대기 후 안전하게 재시도합니다.
+    """
+    import asyncio
+    import aiohttp
+    from aiohttp import web
+
+    port_str = os.getenv("PORT", "").strip()
+    if port_str.isdigit():
+        async def handle_health(request):
+            return web.Response(text="DiCoCon Bot is running!", status=200)
+
+        app = web.Application()
+        app.router.add_get("/", handle_health)
+        app.router.add_get("/health", handle_health)
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, "0.0.0.0", int(port_str))
+        await site.start()
+        print(f"🌐 클라우드 헬스체크 웹 서버 최우선 가동 완료 (Port: {port_str})")
+
+        external_url = os.getenv("RENDER_EXTERNAL_URL", "").strip()
+        if external_url:
+            async def keep_alive_loop():
+                ping_target = f"{external_url.rstrip('/')}/health"
+                while True:
+                    await asyncio.sleep(600)
+                    try:
+                        async with aiohttp.ClientSession() as session:
+                            async with session.get(ping_target, timeout=10):
+                                pass
+                    except Exception:
+                        pass
+
+            asyncio.create_task(keep_alive_loop())
+            print(f"⏰ Render 24시간 자동 절전 방지(Self-Ping) 활성화 완료: {external_url}")
+
+    retry_delay = 25
+    while True:
+        try:
+            async with bot:
+                await bot.start(token)
+            break
+        except discord.errors.HTTPException as e:
+            if e.status == 429:
+                print(
+                    f"⚠️ [주의] 현재 클라우드 공용 IP가 디스코드 429(Rate Limit) 제한에 걸려 있습니다. "
+                    f"{retry_delay}초 후 자동으로 재접속을 시도합니다..."
+                )
+                await asyncio.sleep(retry_delay)
+                retry_delay = min(retry_delay * 2, 300)
+            else:
+                raise
+
+
 if __name__ == "__main__":
+    import asyncio
+
     if not TOKEN or TOKEN == "여기에_디스코드_봇_토큰을_넣어주세요":
         import webbrowser
 
@@ -744,9 +769,9 @@ if __name__ == "__main__":
             env_path.write_text(env_text, encoding="utf-8")
             TOKEN = new_token
             print("\n✅ .env 파일에 토큰이 자동으로 저장되었습니다! 봇을 시작합니다...\n")
-            bot.run(TOKEN)
+            asyncio.run(run_bot_with_cloud_server(TOKEN))
         else:
             print("\n❌ 토큰이 입력되지 않아 종료합니다. 다시 실행.bat을 켜서 입력해주세요.")
     else:
-        bot.run(TOKEN)
+        asyncio.run(run_bot_with_cloud_server(TOKEN))
 
