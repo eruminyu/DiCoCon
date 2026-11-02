@@ -690,7 +690,7 @@ async def run_bot_with_cloud_server(token: str):
     import aiohttp
     from aiohttp import web
 
-    port_str = os.getenv("PORT", "").strip()
+    port_str = os.getenv("PORT", "8000" if not LOCAL_MODE else "").strip()
     if port_str.isdigit():
         async def handle_health(request):
             status_str = "ONLINE" if bot.is_ready() else "CONNECTING"
