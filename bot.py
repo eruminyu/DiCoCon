@@ -292,7 +292,7 @@ class ConBot(commands.Bot):
         app_id = self.application_id or self.user.id
         guild_invite_url = (
             f"https://discord.com/oauth2/authorize?client_id={app_id}"
-            f"&permissions=536879104&integration_type=0&scope=bot+applications.commands"
+            f"&permissions=275414903808&integration_type=0&scope=bot+applications.commands"
         )
         user_install_url = (
             f"https://discord.com/oauth2/authorize?client_id={app_id}"
@@ -314,8 +314,10 @@ class ConBot(commands.Bot):
             except Exception:
                 pass
 
+        guild_names = ", ".join(f"{g.name}({g.id})" for g in self.guilds) or "아직 참여 중인 서버 없음"
         print("=" * 70)
         print(f"✅ 디코콘(DiCoCon) 봇 로그인 완료: {self.user} (ID: {app_id})")
+        print(f"🏠 현재 참여 중인 서버 ({len(self.guilds)}개): {guild_names}")
         print(f"⚙️ 실행 모드: {'로컬 전체 기능 모드 (커스텀 콘 저장 활성)' if LOCAL_MODE else '온라인 클라우드 모드 (디스코드 자체 이모지 확대 전용)'}")
         print(f"🔍 기본 이모지 자동 확대: {'켜짐' if AUTO_ENLARGE_EMOJI else '꺼짐'} ({EMOJI_SIZE}px)")
         if LOCAL_MODE:
@@ -437,14 +439,16 @@ class ConBot(commands.Bot):
         if AUTO_ENLARGE_EMOJI:
             match = SINGLE_EMOJI_PATTERN.match(text)
             if match:
-                is_animated, _, emoji_id = match.groups()
+                is_animated, emoji_name, emoji_id = match.groups()
                 ext = "gif" if is_animated == "a" else "webp"
                 enlarged_url = f"https://cdn.discordapp.com/emojis/{emoji_id}.{ext}?size={EMOJI_SIZE}&quality=lossless"
                 try:
                     await message.delete()
                 except discord.Forbidden:
-                    print("[권한 부족] 원본 메시지를 삭제할 '메시지 관리(Manage Messages)' 권한이 없습니다.")
-                await self.send_as_user_webhook(message, content=enlarged_url)
+                    print(f"[권한 부족] '{message.guild.name}/#{message.channel}' 원본 메시지를 삭제할 '메시지 관리' 권한이 없습니다.")
+                sent = await self.send_as_user_webhook(message, content=enlarged_url)
+                if sent:
+                    print(f"[이모지 확대 완료] {message.guild.name}/#{message.channel} - {message.author.display_name}: :{emoji_name}:")
                 return
 
     async def context_save_con(self, interaction: discord.Interaction, message: discord.Message):
@@ -689,7 +693,12 @@ async def run_bot_with_cloud_server(token: str):
     port_str = os.getenv("PORT", "").strip()
     if port_str.isdigit():
         async def handle_health(request):
-            return web.Response(text="DiCoCon Bot is running!", status=200)
+            status_str = "ONLINE" if bot.is_ready() else "CONNECTING"
+            guilds_str = ", ".join(g.name for g in bot.guilds) if bot.is_ready() else "None"
+            return web.Response(
+                text=f"DiCoCon Bot is running! | Status: {status_str} | Servers({len(bot.guilds)}): {guilds_str}",
+                status=200,
+            )
 
         app = web.Application()
         app.router.add_get("/", handle_health)
